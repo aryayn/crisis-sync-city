@@ -10,33 +10,61 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BuildingBuildingIdLoginRouteImport } from './routes/building.$buildingId.login'
+import { Route as BuildingBuildingIdDashboardRouteImport } from './routes/building.$buildingId.dashboard'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BuildingBuildingIdLoginRoute = BuildingBuildingIdLoginRouteImport.update({
+  id: '/building/$buildingId/login',
+  path: '/building/$buildingId/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BuildingBuildingIdDashboardRoute =
+  BuildingBuildingIdDashboardRouteImport.update({
+    id: '/building/$buildingId/dashboard',
+    path: '/building/$buildingId/dashboard',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/building/$buildingId/dashboard': typeof BuildingBuildingIdDashboardRoute
+  '/building/$buildingId/login': typeof BuildingBuildingIdLoginRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/building/$buildingId/dashboard': typeof BuildingBuildingIdDashboardRoute
+  '/building/$buildingId/login': typeof BuildingBuildingIdLoginRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/building/$buildingId/dashboard': typeof BuildingBuildingIdDashboardRoute
+  '/building/$buildingId/login': typeof BuildingBuildingIdLoginRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/building/$buildingId/dashboard'
+    | '/building/$buildingId/login'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/building/$buildingId/dashboard' | '/building/$buildingId/login'
+  id:
+    | '__root__'
+    | '/'
+    | '/building/$buildingId/dashboard'
+    | '/building/$buildingId/login'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BuildingBuildingIdDashboardRoute: typeof BuildingBuildingIdDashboardRoute
+  BuildingBuildingIdLoginRoute: typeof BuildingBuildingIdLoginRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +76,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/building/$buildingId/login': {
+      id: '/building/$buildingId/login'
+      path: '/building/$buildingId/login'
+      fullPath: '/building/$buildingId/login'
+      preLoaderRoute: typeof BuildingBuildingIdLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/building/$buildingId/dashboard': {
+      id: '/building/$buildingId/dashboard'
+      path: '/building/$buildingId/dashboard'
+      fullPath: '/building/$buildingId/dashboard'
+      preLoaderRoute: typeof BuildingBuildingIdDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BuildingBuildingIdDashboardRoute: BuildingBuildingIdDashboardRoute,
+  BuildingBuildingIdLoginRoute: BuildingBuildingIdLoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
