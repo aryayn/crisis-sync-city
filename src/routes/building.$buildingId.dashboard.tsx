@@ -49,14 +49,14 @@ function DashboardLayout() {
   const Icon = buildingIcon[building.type];
   const cfg = statusConfig[building.status];
 
-  const nav = [
+  const nav: Array<{ to: string; label: string; icon: typeof LayoutGrid; end?: boolean; urgent?: boolean }> = [
     { to: "/building/$buildingId/dashboard", label: "Overview", icon: LayoutGrid, end: true },
     { to: "/building/$buildingId/dashboard/floor-plan", label: "Floor Plan", icon: MapIcon },
     { to: "/building/$buildingId/dashboard/sos", label: "Emergency SOS", icon: Siren, urgent: true },
     { to: "/building/$buildingId/dashboard/incidents", label: "Live Incidents", icon: AlertOctagon },
     { to: "/building/$buildingId/dashboard/comms", label: "Communications", icon: MessageSquare },
     { to: "/building/$buildingId/dashboard/settings", label: "Settings", icon: Settings },
-  ] as const;
+  ];
 
   return (
     <div className="min-h-screen bg-background">
@@ -103,7 +103,7 @@ function DashboardLayout() {
             return (
               <Link
                 key={n.to}
-                to={n.to}
+                to={n.to as "/building/$buildingId/dashboard"}
                 params={{ buildingId }}
                 className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all ${
                   active
@@ -111,9 +111,9 @@ function DashboardLayout() {
                     : "text-muted-foreground hover:bg-sidebar-accent/60 hover:text-foreground"
                 }`}
               >
-                <NIcon className={`h-4 w-4 ${"urgent" in n && n.urgent ? "text-destructive" : ""}`} />
+                <NIcon className={`h-4 w-4 ${n.urgent ? "text-destructive" : ""}`} />
                 <span className="flex-1">{n.label}</span>
-                {"urgent" in n && n.urgent && (
+                {n.urgent && (
                   <span className="h-1.5 w-1.5 rounded-full bg-destructive shadow-[0_0_8px_var(--destructive)]" />
                 )}
               </Link>
