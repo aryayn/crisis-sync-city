@@ -12,6 +12,12 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BuildingBuildingIdLoginRouteImport } from './routes/building.$buildingId.login'
 import { Route as BuildingBuildingIdDashboardRouteImport } from './routes/building.$buildingId.dashboard'
+import { Route as BuildingBuildingIdDashboardIndexRouteImport } from './routes/building.$buildingId.dashboard.index'
+import { Route as BuildingBuildingIdDashboardSosRouteImport } from './routes/building.$buildingId.dashboard.sos'
+import { Route as BuildingBuildingIdDashboardSettingsRouteImport } from './routes/building.$buildingId.dashboard.settings'
+import { Route as BuildingBuildingIdDashboardIncidentsRouteImport } from './routes/building.$buildingId.dashboard.incidents'
+import { Route as BuildingBuildingIdDashboardFloorPlanRouteImport } from './routes/building.$buildingId.dashboard.floor-plan'
+import { Route as BuildingBuildingIdDashboardCommsRouteImport } from './routes/building.$buildingId.dashboard.comms'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -29,22 +35,75 @@ const BuildingBuildingIdDashboardRoute =
     path: '/building/$buildingId/dashboard',
     getParentRoute: () => rootRouteImport,
   } as any)
+const BuildingBuildingIdDashboardIndexRoute =
+  BuildingBuildingIdDashboardIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => BuildingBuildingIdDashboardRoute,
+  } as any)
+const BuildingBuildingIdDashboardSosRoute =
+  BuildingBuildingIdDashboardSosRouteImport.update({
+    id: '/sos',
+    path: '/sos',
+    getParentRoute: () => BuildingBuildingIdDashboardRoute,
+  } as any)
+const BuildingBuildingIdDashboardSettingsRoute =
+  BuildingBuildingIdDashboardSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => BuildingBuildingIdDashboardRoute,
+  } as any)
+const BuildingBuildingIdDashboardIncidentsRoute =
+  BuildingBuildingIdDashboardIncidentsRouteImport.update({
+    id: '/incidents',
+    path: '/incidents',
+    getParentRoute: () => BuildingBuildingIdDashboardRoute,
+  } as any)
+const BuildingBuildingIdDashboardFloorPlanRoute =
+  BuildingBuildingIdDashboardFloorPlanRouteImport.update({
+    id: '/floor-plan',
+    path: '/floor-plan',
+    getParentRoute: () => BuildingBuildingIdDashboardRoute,
+  } as any)
+const BuildingBuildingIdDashboardCommsRoute =
+  BuildingBuildingIdDashboardCommsRouteImport.update({
+    id: '/comms',
+    path: '/comms',
+    getParentRoute: () => BuildingBuildingIdDashboardRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/building/$buildingId/dashboard': typeof BuildingBuildingIdDashboardRoute
+  '/building/$buildingId/dashboard': typeof BuildingBuildingIdDashboardRouteWithChildren
   '/building/$buildingId/login': typeof BuildingBuildingIdLoginRoute
+  '/building/$buildingId/dashboard/comms': typeof BuildingBuildingIdDashboardCommsRoute
+  '/building/$buildingId/dashboard/floor-plan': typeof BuildingBuildingIdDashboardFloorPlanRoute
+  '/building/$buildingId/dashboard/incidents': typeof BuildingBuildingIdDashboardIncidentsRoute
+  '/building/$buildingId/dashboard/settings': typeof BuildingBuildingIdDashboardSettingsRoute
+  '/building/$buildingId/dashboard/sos': typeof BuildingBuildingIdDashboardSosRoute
+  '/building/$buildingId/dashboard/': typeof BuildingBuildingIdDashboardIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/building/$buildingId/dashboard': typeof BuildingBuildingIdDashboardRoute
   '/building/$buildingId/login': typeof BuildingBuildingIdLoginRoute
+  '/building/$buildingId/dashboard/comms': typeof BuildingBuildingIdDashboardCommsRoute
+  '/building/$buildingId/dashboard/floor-plan': typeof BuildingBuildingIdDashboardFloorPlanRoute
+  '/building/$buildingId/dashboard/incidents': typeof BuildingBuildingIdDashboardIncidentsRoute
+  '/building/$buildingId/dashboard/settings': typeof BuildingBuildingIdDashboardSettingsRoute
+  '/building/$buildingId/dashboard/sos': typeof BuildingBuildingIdDashboardSosRoute
+  '/building/$buildingId/dashboard': typeof BuildingBuildingIdDashboardIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/building/$buildingId/dashboard': typeof BuildingBuildingIdDashboardRoute
+  '/building/$buildingId/dashboard': typeof BuildingBuildingIdDashboardRouteWithChildren
   '/building/$buildingId/login': typeof BuildingBuildingIdLoginRoute
+  '/building/$buildingId/dashboard/comms': typeof BuildingBuildingIdDashboardCommsRoute
+  '/building/$buildingId/dashboard/floor-plan': typeof BuildingBuildingIdDashboardFloorPlanRoute
+  '/building/$buildingId/dashboard/incidents': typeof BuildingBuildingIdDashboardIncidentsRoute
+  '/building/$buildingId/dashboard/settings': typeof BuildingBuildingIdDashboardSettingsRoute
+  '/building/$buildingId/dashboard/sos': typeof BuildingBuildingIdDashboardSosRoute
+  '/building/$buildingId/dashboard/': typeof BuildingBuildingIdDashboardIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -52,18 +111,38 @@ export interface FileRouteTypes {
     | '/'
     | '/building/$buildingId/dashboard'
     | '/building/$buildingId/login'
+    | '/building/$buildingId/dashboard/comms'
+    | '/building/$buildingId/dashboard/floor-plan'
+    | '/building/$buildingId/dashboard/incidents'
+    | '/building/$buildingId/dashboard/settings'
+    | '/building/$buildingId/dashboard/sos'
+    | '/building/$buildingId/dashboard/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/building/$buildingId/dashboard' | '/building/$buildingId/login'
+  to:
+    | '/'
+    | '/building/$buildingId/login'
+    | '/building/$buildingId/dashboard/comms'
+    | '/building/$buildingId/dashboard/floor-plan'
+    | '/building/$buildingId/dashboard/incidents'
+    | '/building/$buildingId/dashboard/settings'
+    | '/building/$buildingId/dashboard/sos'
+    | '/building/$buildingId/dashboard'
   id:
     | '__root__'
     | '/'
     | '/building/$buildingId/dashboard'
     | '/building/$buildingId/login'
+    | '/building/$buildingId/dashboard/comms'
+    | '/building/$buildingId/dashboard/floor-plan'
+    | '/building/$buildingId/dashboard/incidents'
+    | '/building/$buildingId/dashboard/settings'
+    | '/building/$buildingId/dashboard/sos'
+    | '/building/$buildingId/dashboard/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  BuildingBuildingIdDashboardRoute: typeof BuildingBuildingIdDashboardRoute
+  BuildingBuildingIdDashboardRoute: typeof BuildingBuildingIdDashboardRouteWithChildren
   BuildingBuildingIdLoginRoute: typeof BuildingBuildingIdLoginRoute
 }
 
@@ -90,12 +169,84 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BuildingBuildingIdDashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/building/$buildingId/dashboard/': {
+      id: '/building/$buildingId/dashboard/'
+      path: '/'
+      fullPath: '/building/$buildingId/dashboard/'
+      preLoaderRoute: typeof BuildingBuildingIdDashboardIndexRouteImport
+      parentRoute: typeof BuildingBuildingIdDashboardRoute
+    }
+    '/building/$buildingId/dashboard/sos': {
+      id: '/building/$buildingId/dashboard/sos'
+      path: '/sos'
+      fullPath: '/building/$buildingId/dashboard/sos'
+      preLoaderRoute: typeof BuildingBuildingIdDashboardSosRouteImport
+      parentRoute: typeof BuildingBuildingIdDashboardRoute
+    }
+    '/building/$buildingId/dashboard/settings': {
+      id: '/building/$buildingId/dashboard/settings'
+      path: '/settings'
+      fullPath: '/building/$buildingId/dashboard/settings'
+      preLoaderRoute: typeof BuildingBuildingIdDashboardSettingsRouteImport
+      parentRoute: typeof BuildingBuildingIdDashboardRoute
+    }
+    '/building/$buildingId/dashboard/incidents': {
+      id: '/building/$buildingId/dashboard/incidents'
+      path: '/incidents'
+      fullPath: '/building/$buildingId/dashboard/incidents'
+      preLoaderRoute: typeof BuildingBuildingIdDashboardIncidentsRouteImport
+      parentRoute: typeof BuildingBuildingIdDashboardRoute
+    }
+    '/building/$buildingId/dashboard/floor-plan': {
+      id: '/building/$buildingId/dashboard/floor-plan'
+      path: '/floor-plan'
+      fullPath: '/building/$buildingId/dashboard/floor-plan'
+      preLoaderRoute: typeof BuildingBuildingIdDashboardFloorPlanRouteImport
+      parentRoute: typeof BuildingBuildingIdDashboardRoute
+    }
+    '/building/$buildingId/dashboard/comms': {
+      id: '/building/$buildingId/dashboard/comms'
+      path: '/comms'
+      fullPath: '/building/$buildingId/dashboard/comms'
+      preLoaderRoute: typeof BuildingBuildingIdDashboardCommsRouteImport
+      parentRoute: typeof BuildingBuildingIdDashboardRoute
+    }
   }
 }
 
+interface BuildingBuildingIdDashboardRouteChildren {
+  BuildingBuildingIdDashboardCommsRoute: typeof BuildingBuildingIdDashboardCommsRoute
+  BuildingBuildingIdDashboardFloorPlanRoute: typeof BuildingBuildingIdDashboardFloorPlanRoute
+  BuildingBuildingIdDashboardIncidentsRoute: typeof BuildingBuildingIdDashboardIncidentsRoute
+  BuildingBuildingIdDashboardSettingsRoute: typeof BuildingBuildingIdDashboardSettingsRoute
+  BuildingBuildingIdDashboardSosRoute: typeof BuildingBuildingIdDashboardSosRoute
+  BuildingBuildingIdDashboardIndexRoute: typeof BuildingBuildingIdDashboardIndexRoute
+}
+
+const BuildingBuildingIdDashboardRouteChildren: BuildingBuildingIdDashboardRouteChildren =
+  {
+    BuildingBuildingIdDashboardCommsRoute:
+      BuildingBuildingIdDashboardCommsRoute,
+    BuildingBuildingIdDashboardFloorPlanRoute:
+      BuildingBuildingIdDashboardFloorPlanRoute,
+    BuildingBuildingIdDashboardIncidentsRoute:
+      BuildingBuildingIdDashboardIncidentsRoute,
+    BuildingBuildingIdDashboardSettingsRoute:
+      BuildingBuildingIdDashboardSettingsRoute,
+    BuildingBuildingIdDashboardSosRoute: BuildingBuildingIdDashboardSosRoute,
+    BuildingBuildingIdDashboardIndexRoute:
+      BuildingBuildingIdDashboardIndexRoute,
+  }
+
+const BuildingBuildingIdDashboardRouteWithChildren =
+  BuildingBuildingIdDashboardRoute._addFileChildren(
+    BuildingBuildingIdDashboardRouteChildren,
+  )
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  BuildingBuildingIdDashboardRoute: BuildingBuildingIdDashboardRoute,
+  BuildingBuildingIdDashboardRoute:
+    BuildingBuildingIdDashboardRouteWithChildren,
   BuildingBuildingIdLoginRoute: BuildingBuildingIdLoginRoute,
 }
 export const routeTree = rootRouteImport
