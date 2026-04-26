@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft, ArrowRight, Briefcase, Lock, Mail, Shield, User, UserCheck } from "lucide-react";
 import { getBuilding } from "@/data/buildings";
 import { buildingIcon, buildingTypeLabel, statusConfig } from "@/lib/building-meta";
@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { ensureSingleBuildingSession, setBuildingSession } from "@/lib/auth";
 
 export const Route = createFileRoute("/building/$buildingId/login")({
   head: ({ params }) => {
@@ -34,6 +35,11 @@ function LoginPage() {
   const [role, setRole] = useState<(typeof roles)[number]["id"]>("staff");
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    // If you arrived here while another building is active, clear that session.
+    ensureSingleBuildingSession(buildingId);
+  }, [buildingId]);
+
   if (!building) {
     return (
       <div className="grid min-h-screen place-items-center bg-background px-6 text-center">
@@ -53,7 +59,7 @@ function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setTimeout(() => {
-      try { sessionStorage.setItem(`cs-role-${buildingId}`, role); } catch {}
+      setBuildingSession(buildingId, role);
       toast.success(`Authenticated · ${roles.find((r) => r.id === role)?.label}`);
       navigate({ to: "/building/$buildingId/dashboard", params: { buildingId } });
     }, 700);

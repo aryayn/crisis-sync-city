@@ -10,6 +10,8 @@ export interface Building {
   occupancy: number;
   capacity: number;
   floors: number;
+  lat?: number;
+  lng?: number;
   // Position on stylized map (0-100 percent)
   x: number;
   y: number;
@@ -28,6 +30,8 @@ export const buildings: Building[] = [
     occupancy: 18420,
     capacity: 22000,
     floors: 4,
+    lat: 19.0896,
+    lng: 72.8656,
     x: 38,
     y: 42,
     area: "Andheri East",
@@ -43,6 +47,8 @@ export const buildings: Building[] = [
     occupancy: 612,
     capacity: 850,
     floors: 7,
+    lat: 18.9217,
+    lng: 72.8331,
     x: 28,
     y: 78,
     area: "Colaba",
@@ -58,6 +64,8 @@ export const buildings: Building[] = [
     occupancy: 9840,
     capacity: 15000,
     floors: 5,
+    lat: 19.086,
+    lng: 72.8887,
     x: 62,
     y: 55,
     area: "Kurla West",
@@ -118,6 +126,8 @@ export const buildings: Building[] = [
     occupancy: 1840,
     capacity: 3200,
     floors: 76,
+    lat: 18.9933,
+    lng: 72.8258,
     x: 35,
     y: 50,
     area: "Lower Parel",

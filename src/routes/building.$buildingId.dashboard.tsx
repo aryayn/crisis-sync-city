@@ -1,4 +1,5 @@
-import { createFileRoute, Link, Outlet, useLocation, useParams } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useLocation, useNavigate, useParams } from "@tanstack/react-router";
+import { useEffect } from "react";
 import {
   AlertOctagon,
   Bell,
@@ -18,6 +19,7 @@ import { getBuilding } from "@/data/buildings";
 import { buildingIcon, buildingTypeLabel, statusConfig } from "@/lib/building-meta";
 import { useTheme } from "@/components/app/theme-provider";
 import { Button } from "@/components/ui/button";
+import { ensureSingleBuildingSession, hasBuildingSession } from "@/lib/auth";
 
 export const Route = createFileRoute("/building/$buildingId/dashboard")({
   head: ({ params }) => {
@@ -37,6 +39,15 @@ function DashboardLayout() {
   const building = getBuilding(buildingId);
   const location = useLocation();
   const { theme, toggle } = useTheme();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Switching buildings invalidates prior session, and dashboard requires building login.
+    ensureSingleBuildingSession(buildingId);
+    if (!hasBuildingSession(buildingId)) {
+      navigate({ to: "/building/$buildingId/login", params: { buildingId }, replace: true });
+    }
+  }, [buildingId, navigate]);
 
   if (!building) {
     return (

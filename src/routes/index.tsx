@@ -12,6 +12,7 @@ import { buildings } from "@/data/buildings";
 import { buildingIcon, buildingTypeLabel, statusConfig } from "@/lib/building-meta";
 import { useTheme } from "@/components/app/theme-provider";
 import { Button } from "@/components/ui/button";
+import { MumbaiLeafletMap } from "@/components/app/mumbai-leaflet-map";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -26,6 +27,11 @@ export const Route = createFileRoute("/")({
 function MapPage() {
   const [hovered, setHovered] = useState<string | null>(null);
   const { theme, toggle } = useTheme();
+
+  const mapBuildings = useMemo(() => {
+    const ids = new Set(["csmia", "tajpalace", "phoenix", "lodha"]);
+    return buildings.filter((b) => ids.has(b.id));
+  }, []);
 
   const stats = useMemo(() => {
     const total = buildings.length;
@@ -111,58 +117,7 @@ function MapPage() {
           </div>
 
           <div className="relative aspect-[16/10] w-full grid-bg-fine">
-            <StylizedMumbaiMap />
-
-            {buildings.map((b, idx) => {
-              const Icon = buildingIcon[b.type];
-              const cfg = statusConfig[b.status];
-              const isHover = hovered === b.id;
-              return (
-                <Link
-                  key={b.id}
-                  to="/building/$buildingId/login"
-                  params={{ buildingId: b.id }}
-                  onMouseEnter={() => setHovered(b.id)}
-                  onMouseLeave={() => setHovered(null)}
-                  className="group absolute -translate-x-1/2 -translate-y-1/2 outline-none animate-fade-up"
-                  style={{ left: `${b.x}%`, top: `${b.y}%`, animationDelay: `${idx * 60}ms` }}
-                >
-                  {/* Pulse */}
-                  {b.status !== "normal" && (
-                    <span className={`absolute left-1/2 top-1/2 h-10 w-10 -translate-x-1/2 -translate-y-1/2 rounded-full ${b.status === "critical" ? "bg-destructive/30" : "bg-warning/30"} animate-pulse-ring`} />
-                  )}
-                  {/* Marker */}
-                  <span className={`relative grid h-10 w-10 place-items-center rounded-2xl border bg-surface-elevated shadow-card ring-2 ${cfg.ring} transition-all duration-300 group-hover:scale-110 group-focus-visible:scale-110 ${b.status === "critical" ? "border-destructive/60" : b.status === "warning" ? "border-warning/60" : "border-border-strong"}`}>
-                    <Icon className={`h-4 w-4 ${cfg.color}`} />
-                    <span className={`absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full ${cfg.dot}`} />
-                  </span>
-
-                  {/* Hover card */}
-                  <div className={`pointer-events-none absolute left-1/2 top-full z-30 mt-3 w-64 -translate-x-1/2 rounded-2xl border border-border-strong bg-popover/95 p-4 text-left shadow-elevated backdrop-blur transition-all duration-200 ${isHover ? "translate-y-0 opacity-100" : "translate-y-1 opacity-0"}`}>
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{buildingTypeLabel[b.type]} · {b.area}</p>
-                        <p className="mt-1 font-display text-sm font-semibold leading-tight">{b.shortName}</p>
-                      </div>
-                      <ArrowUpRight className="h-4 w-4 text-primary" />
-                    </div>
-                    <div className="mt-3 flex items-center justify-between text-xs">
-                      <span className={`inline-flex items-center gap-1.5 ${cfg.color}`}>
-                        <span className={`h-1.5 w-1.5 rounded-full ${cfg.dot}`} />
-                        {cfg.label}
-                      </span>
-                      <span className="text-muted-foreground">{b.activeIncidents} active</span>
-                    </div>
-                    <div className="mt-3 h-1 overflow-hidden rounded-full bg-muted">
-                      <div className="h-full bg-primary" style={{ width: `${Math.round((b.occupancy / b.capacity) * 100)}%` }} />
-                    </div>
-                    <p className="mt-1.5 font-mono text-[10px] text-muted-foreground">
-                      {b.occupancy.toLocaleString()} / {b.capacity.toLocaleString()} occupants
-                    </p>
-                  </div>
-                </Link>
-              );
-            })}
+            <MumbaiLeafletMap buildings={mapBuildings} />
 
             {/* Legend */}
             <div className="absolute bottom-4 left-4 flex items-center gap-4 rounded-full border border-border/60 bg-surface/80 px-4 py-2 backdrop-blur">
@@ -173,8 +128,13 @@ function MapPage() {
                 </div>
               ))}
             </div>
-            <div className="absolute bottom-4 right-4 rounded-full border border-border/60 bg-surface/80 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground backdrop-blur">
-              Click any node to enter
+            <div className="absolute bottom-4 right-4 flex flex-col items-end gap-1">
+              <div className="rounded-full border border-border/60 bg-surface/80 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground backdrop-blur">
+                Click any node to enter
+              </div>
+              <div className="rounded-full border border-border/60 bg-surface/80 px-3 py-1 font-mono text-[9px] uppercase tracking-[0.2em] text-muted-foreground/80 backdrop-blur">
+                © OpenStreetMap
+              </div>
             </div>
           </div>
         </div>
@@ -237,51 +197,3 @@ function Stat({ label, value, icon: Icon, accent }: { label: string; value: numb
   );
 }
 
-function StylizedMumbaiMap() {
-  return (
-    <svg
-      viewBox="0 0 800 500"
-      className="absolute inset-0 h-full w-full"
-      preserveAspectRatio="none"
-      aria-hidden="true"
-    >
-      <defs>
-        <linearGradient id="land" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="oklch(0.78 0.16 210)" stopOpacity="0.05" />
-          <stop offset="100%" stopColor="oklch(0.78 0.16 210)" stopOpacity="0.18" />
-        </linearGradient>
-        <linearGradient id="water" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="oklch(0.5 0.1 220)" stopOpacity="0.06" />
-          <stop offset="100%" stopColor="oklch(0.5 0.1 220)" stopOpacity="0.02" />
-        </linearGradient>
-      </defs>
-
-      {/* Water (Arabian Sea) */}
-      <rect width="800" height="500" fill="url(#water)" />
-
-      {/* Mumbai landmass — stylized */}
-      <path
-        d="M 180 60 L 320 50 L 420 90 L 480 140 L 520 220 L 540 300 L 510 360 L 470 410 L 380 450 L 300 480 L 220 460 L 180 400 L 200 320 L 180 240 L 200 160 Z"
-        fill="url(#land)"
-        stroke="oklch(0.78 0.16 210 / 0.4)"
-        strokeWidth="1"
-      />
-      {/* Bandra peninsula */}
-      <path
-        d="M 380 240 L 460 250 L 480 280 L 440 310 L 380 290 Z"
-        fill="oklch(0.78 0.16 210 / 0.08)"
-        stroke="oklch(0.78 0.16 210 / 0.3)"
-        strokeWidth="1"
-      />
-      {/* Roads */}
-      <path d="M 220 100 L 280 200 L 340 280 L 380 380 L 360 460" stroke="oklch(1 0 0 / 0.08)" strokeWidth="1.5" fill="none" />
-      <path d="M 200 250 L 350 260 L 480 270" stroke="oklch(1 0 0 / 0.08)" strokeWidth="1.5" fill="none" />
-      <path d="M 300 80 L 320 200 L 310 320 L 290 440" stroke="oklch(1 0 0 / 0.06)" strokeWidth="1" fill="none" strokeDasharray="2 4" />
-
-      {/* Labels */}
-      <text x="100" y="40" fill="oklch(0.66 0.015 240)" fontSize="9" fontFamily="JetBrains Mono" letterSpacing="2">ARABIAN SEA</text>
-      <text x="600" y="200" fill="oklch(0.66 0.015 240)" fontSize="9" fontFamily="JetBrains Mono" letterSpacing="2">THANE CREEK</text>
-      <text x="350" y="490" fill="oklch(0.66 0.015 240)" fontSize="8" fontFamily="JetBrains Mono" letterSpacing="2" opacity="0.7">SOUTH MUMBAI</text>
-    </svg>
-  );
-}

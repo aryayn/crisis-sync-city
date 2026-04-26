@@ -243,3 +243,66 @@
   }
   .animate-draw { animation: draw-path 2s ease-out forwards; }
 }
+
+/* Leaflet: keep map consistent with existing UI */
+.leaflet-container {
+  background: transparent;
+  font-family: var(--font-sans);
+}
+
+.cs-leaflet-marker {
+  background: transparent;
+  border: none;
+}
+
+.cs-leaflet-pin {
+  width: 36px;
+  height: 36px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  background: color-mix(in oklab, var(--surface-elevated) 92%, transparent);
+  border: 1px solid color-mix(in oklab, var(--border-strong) 70%, transparent);
+  box-shadow: var(--shadow-card);
+  outline: 2px solid color-mix(in oklab, var(--pin) 38%, transparent);
+  cursor: pointer;
+}
+
+.cs-leaflet-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 9999px;
+  background: var(--pin);
+  box-shadow: 0 0 14px color-mix(in oklab, var(--pin) 70%, transparent);
+}
+
+.cs-leaflet-tooltip.leaflet-tooltip {
+  background: color-mix(in oklab, var(--popover) 92%, transparent);
+  color: var(--popover-foreground);
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  padding: 6px 10px;
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.cs-leaflet-tooltip-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cs-leaflet-tooltip-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+}
+
+.cs-leaflet-tooltip-name {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
