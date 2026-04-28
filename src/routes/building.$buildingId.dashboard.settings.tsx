@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Accessibility, Bell, Eye, Languages, Moon, Sun, Type, Volume2 } from "lucide-react";
+import { BellRing, Shield, User, Globe, Activity, Smartphone, Link as LinkIcon, Database, KeyRound, ArrowUpRight, Accessibility, Bell, Eye, Languages, Moon, Sun, Type, Volume2 } from "lucide-react";
+import { getBuildingEmail } from "@/lib/auth";
 import { useTheme } from "@/components/app/theme-provider";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -11,6 +12,7 @@ export const Route = createFileRoute("/building/$buildingId/dashboard/settings")
 });
 
 function SettingsPage() {
+  const { buildingId } = Route.useParams();
   const { theme, toggle } = useTheme();
   const [notif, setNotif] = useState({ critical: true, warnings: true, broadcasts: true, daily: false });
   const [a11y, setA11y] = useState({ largeText: false, highContrast: false, reduceMotion: false, audio: true });
@@ -25,16 +27,18 @@ function SettingsPage() {
 
       {/* Profile */}
       <Section title="Profile">
-        <div className="flex items-center gap-4">
-          <div className="grid h-14 w-14 place-items-center rounded-2xl bg-primary/15 font-display text-lg font-semibold text-primary">RS</div>
-          <div className="flex-1">
-            <p className="font-display text-base font-semibold">Cmdr. R. Sharma</p>
-            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Emergency Personnel · ID #4471</p>
+          <div className="flex items-center gap-4">
+            <div className="grid h-16 w-16 place-items-center rounded-2xl bg-primary/10 text-xl font-bold text-primary uppercase">
+              {(getBuildingEmail(buildingId || "")?.[0] || "U").toUpperCase()}
+            </div>
+            <div>
+              <p className="font-display text-base font-semibold">{getBuildingEmail(buildingId || "").split("@")[0]}</p>
+              <p className="text-sm text-muted-foreground">{getBuildingEmail(buildingId || "")}</p>
+            </div>
           </div>
-        </div>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2">
-          <Field label="Display name" defaultValue="Cmdr. R. Sharma" />
-          <Field label="Email" defaultValue="commander@crisissync.ai" />
+          <div className="mt-6 grid gap-4 sm:grid-cols-2">
+            <Field label="Display name" defaultValue={getBuildingEmail(buildingId || "").split("@")[0] || ""} />
+            <Field label="Email address" defaultValue={getBuildingEmail(buildingId || "") || ""} />
           <Field label="Phone" defaultValue="+91 98XXX XXXXX" />
           <Field label="Designation" defaultValue="Incident Commander" />
         </div>

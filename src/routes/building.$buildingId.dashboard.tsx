@@ -19,7 +19,8 @@ import { getBuilding } from "@/data/buildings";
 import { buildingIcon, buildingTypeLabel, statusConfig } from "@/lib/building-meta";
 import { useTheme } from "@/components/app/theme-provider";
 import { Button } from "@/components/ui/button";
-import { ensureSingleBuildingSession, hasBuildingSession } from "@/lib/auth";
+import { ensureSingleBuildingSession, hasBuildingSession, getBuildingEmail, getBuildingRole } from "@/lib/auth";
+import { useActiveCount } from "@/contexts/IncidentContext";
 
 export const Route = createFileRoute("/building/$buildingId/dashboard")({
   head: ({ params }) => {
@@ -57,8 +58,11 @@ function DashboardLayout() {
     );
   }
 
+  const activeCount = useActiveCount(buildingId || "");
+  const dynamicStatus = activeCount > 2 ? "critical" : activeCount > 0 ? "warning" : "normal";
+
   const Icon = buildingIcon[building.type];
-  const cfg = statusConfig[building.status];
+  const cfg = statusConfig[dynamicStatus];
 
   const nav: Array<{ to: string; label: string; icon: typeof LayoutGrid; end?: boolean; urgent?: boolean }> = [
     { to: "/building/$buildingId/dashboard", label: "Overview", icon: LayoutGrid, end: true },
@@ -100,7 +104,7 @@ function DashboardLayout() {
                 <span className={`h-1.5 w-1.5 rounded-full ${cfg.dot}`} />
                 {cfg.label}
               </span>
-              <span className="font-mono text-muted-foreground">{building.activeIncidents} active</span>
+              <span className="font-mono text-muted-foreground">{activeCount} active</span>
             </div>
           </div>
         </div>
@@ -153,8 +157,8 @@ function DashboardLayout() {
             </Link>
             <div className="flex items-center gap-2 rounded-full border border-border/60 bg-surface/40 px-3 py-1 backdrop-blur">
               <span className="relative flex h-2 w-2">
-                <span className={`absolute inline-flex h-full w-full animate-ping rounded-full opacity-60 ${building.status === "critical" ? "bg-destructive" : building.status === "warning" ? "bg-warning" : "bg-success"}`} />
-                <span className={`relative inline-flex h-2 w-2 rounded-full ${building.status === "critical" ? "bg-destructive" : building.status === "warning" ? "bg-warning" : "bg-success"}`} />
+                <span className={`absolute inline-flex h-full w-full animate-ping rounded-full opacity-60 ${dynamicStatus === "critical" ? "bg-destructive" : dynamicStatus === "warning" ? "bg-warning" : "bg-success"}`} />
+                <span className={`relative inline-flex h-2 w-2 rounded-full ${dynamicStatus === "critical" ? "bg-destructive" : dynamicStatus === "warning" ? "bg-warning" : "bg-success"}`} />
               </span>
               <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground hidden sm:inline">
                 Live · {building.shortName}
@@ -172,15 +176,21 @@ function DashboardLayout() {
             </Button>
             <Button variant="ghost" size="icon" className="relative h-9 w-9 rounded-xl">
               <Bell className="h-4 w-4" />
-              {building.activeIncidents > 0 && (
+              {activeCount > 0 && (
                 <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-destructive shadow-[0_0_8px_var(--destructive)]" />
               )}
             </Button>
             <div className="flex items-center gap-2.5 rounded-xl border border-border/60 bg-surface/40 px-3 py-1.5">
-              <div className="grid h-7 w-7 place-items-center rounded-lg bg-primary/15 font-mono text-[10px] font-semibold text-primary">RS</div>
+              <div className="grid h-7 w-7 place-items-center rounded-lg bg-primary/15 font-mono text-[10px] font-semibold text-primary uppercase">
+                {(getBuildingEmail(buildingId || "")?.[0] || "U").toUpperCase()}
+              </div>
               <div className="hidden text-right sm:block">
-                <p className="text-xs font-medium leading-none">Cmdr. R. Sharma</p>
-                <p className="mt-0.5 font-mono text-[9px] uppercase tracking-[0.2em] text-muted-foreground">Emergency Personnel</p>
+                <p className="text-xs font-medium leading-none truncate max-w-[150px]">
+                  {getBuildingEmail(buildingId || "").split("@")[0]}
+                </p>
+                <p className="mt-0.5 font-mono text-[9px] uppercase tracking-[0.2em] text-muted-foreground">
+                  {getBuildingRole(buildingId || "") || "Authorized"}
+                </p>
               </div>
             </div>
           </div>

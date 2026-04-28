@@ -1,6 +1,7 @@
 import { Outlet, createRootRoute } from "@tanstack/react-router";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/app/theme-provider";
+import { IncidentProvider } from "@/contexts/IncidentContext";
 
 function NotFoundComponent() {
   return (
@@ -30,8 +31,10 @@ export const Route = createRootRoute({
 function RootComponent() {
   return (
     <ThemeProvider>
-      <Outlet />
-      <Toaster position="top-right" theme="dark" richColors closeButton />
+      <IncidentProvider>
+        <Outlet />
+        <Toaster position="top-right" theme="dark" richColors closeButton />
+      </IncidentProvider>
     </ThemeProvider>
   );
 }

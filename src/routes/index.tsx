@@ -13,6 +13,7 @@ import { buildingIcon, buildingTypeLabel, statusConfig } from "@/lib/building-me
 import { useTheme } from "@/components/app/theme-provider";
 import { Button } from "@/components/ui/button";
 import { MumbaiLeafletMap } from "@/components/app/mumbai-leaflet-map";
+import { useIncidentContext } from "@/contexts/IncidentContext";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -28,18 +29,31 @@ function MapPage() {
   const [hovered, setHovered] = useState<string | null>(null);
   const { theme, toggle } = useTheme();
 
+  const { getActiveCount } = useIncidentContext();
+
+  const dynamicBuildings = useMemo(() => {
+    return buildings.map(b => {
+      const active = getActiveCount(b.id);
+      return {
+        ...b,
+        activeIncidents: active,
+        status: active > 2 ? "critical" : active > 0 ? "warning" : "normal"
+      } as typeof b;
+    });
+  }, [getActiveCount]);
+
   const mapBuildings = useMemo(() => {
-    const ids = new Set(["csmia", "tajpalace", "phoenix", "lodha"]);
-    return buildings.filter((b) => ids.has(b.id));
-  }, []);
+    const ids = new Set(["csmia", "tajpalace", "phoenix", "lodha", "bse", "jio"]);
+    return dynamicBuildings.filter((b) => ids.has(b.id));
+  }, [dynamicBuildings]);
 
   const stats = useMemo(() => {
-    const total = buildings.length;
-    const incidents = buildings.reduce((s, b) => s + b.activeIncidents, 0);
-    const critical = buildings.filter((b) => b.status === "critical").length;
-    const occupants = buildings.reduce((s, b) => s + b.occupancy, 0);
+    const total = dynamicBuildings.length;
+    const incidents = dynamicBuildings.reduce((s, b) => s + b.activeIncidents, 0);
+    const critical = dynamicBuildings.filter((b) => b.status === "critical").length;
+    const occupants = dynamicBuildings.reduce((s, b) => s + b.occupancy, 0);
     return { total, incidents, critical, occupants };
-  }, []);
+  }, [dynamicBuildings]);
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-background">
@@ -141,7 +155,7 @@ function MapPage() {
 
         {/* Building list */}
         <div className="mt-8 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-          {buildings.map((b, i) => {
+          {dynamicBuildings.map((b, i) => {
             const Icon = buildingIcon[b.type];
             const cfg = statusConfig[b.status];
             return (

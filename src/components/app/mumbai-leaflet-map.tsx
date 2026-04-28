@@ -3,6 +3,7 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { MapContainer, Marker, TileLayer, Tooltip } from "react-leaflet";
 import { useMemo } from "react";
+import { useNavigate } from "@tanstack/react-router";
 
 // TEMP: remove strict typing to avoid TS cascade errors
 type Status = "critical" | "warning" | "normal";
@@ -46,6 +47,8 @@ function createStatusIcon(status: Status) {
 const mumbaiCenter: [number, number] = [19.076, 72.8777];
 
 export function MumbaiLeafletMap({ buildings }: { buildings: Building[] }) {
+  const navigate = useNavigate();
+
   const markers = useMemo(() => {
     return buildings
       .filter((b) => typeof b.lat === "number" && typeof b.lng === "number")
@@ -78,7 +81,7 @@ export function MumbaiLeafletMap({ buildings }: { buildings: Building[] }) {
             icon={b.icon}
             eventHandlers={{
               click: () => {
-                alert(`Clicked building ${b.id}`);
+                navigate({ to: "/building/$buildingId/login", params: { buildingId: b.id } });
               },
             }}
           >

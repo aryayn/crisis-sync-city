@@ -2,7 +2,7 @@ const ACTIVE_BUILDING_KEY = "cs-active-building";
 
 function safeGet(key: string) {
   try {
-    return sessionStorage.getItem(key);
+    return localStorage.getItem(key);
   } catch {
     return null;
   }
@@ -10,21 +10,21 @@ function safeGet(key: string) {
 
 function safeSet(key: string, value: string) {
   try {
-    sessionStorage.setItem(key, value);
+    localStorage.setItem(key, value);
   } catch {}
 }
 
 function safeRemove(key: string) {
   try {
-    sessionStorage.removeItem(key);
+    localStorage.removeItem(key);
   } catch {}
 }
 
 function safeKeys(): string[] {
   try {
     const keys: string[] = [];
-    for (let i = 0; i < sessionStorage.length; i++) {
-      const k = sessionStorage.key(i);
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
       if (k) keys.push(k);
     }
     return keys;
@@ -54,11 +54,12 @@ export function ensureSingleBuildingSession(buildingId: string) {
   clearBuildingSessions();
 }
 
-export function setBuildingSession(buildingId: string, role: string) {
+export function setBuildingSession(buildingId: string, role: string, email?: string) {
   // One active building at a time.
   clearBuildingSessions(buildingId);
   safeSet(ACTIVE_BUILDING_KEY, buildingId);
   safeSet(`cs-role-${buildingId}`, role);
+  if (email) safeSet(`cs-email-${buildingId}`, email);
 }
 
 export function hasBuildingSession(buildingId: string) {
@@ -69,5 +70,9 @@ export function hasBuildingSession(buildingId: string) {
 
 export function getBuildingRole(buildingId: string) {
   return safeGet(`cs-role-${buildingId}`);
+}
+
+export function getBuildingEmail(buildingId: string) {
+  return safeGet(`cs-email-${buildingId}`) || "unknown@domain.com";
 }
 

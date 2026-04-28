@@ -26,7 +26,7 @@ export const buildings: Building[] = [
     name: "Chhatrapati Shivaji Maharaj International Airport",
     shortName: "CSMIA Terminal 2",
     type: "airport",
-    status: "critical",
+    status: "normal",
     occupancy: 18420,
     capacity: 22000,
     floors: 4,
@@ -35,7 +35,7 @@ export const buildings: Building[] = [
     x: 38,
     y: 42,
     area: "Andheri East",
-    activeIncidents: 2,
+    activeIncidents: 0,
     tagline: "International Gateway · Mumbai",
   },
   {
@@ -43,7 +43,7 @@ export const buildings: Building[] = [
     name: "The Taj Mahal Palace",
     shortName: "Taj Palace Hotel",
     type: "hotel",
-    status: "warning",
+    status: "normal",
     occupancy: 612,
     capacity: 850,
     floors: 7,
@@ -52,7 +52,7 @@ export const buildings: Building[] = [
     x: 28,
     y: 78,
     area: "Colaba",
-    activeIncidents: 1,
+    activeIncidents: 0,
     tagline: "Heritage Wing · Apollo Bunder",
   },
   {
@@ -122,7 +122,7 @@ export const buildings: Building[] = [
     name: "Lodha World Towers",
     shortName: "Lodha World One",
     type: "tower",
-    status: "warning",
+    status: "normal",
     occupancy: 1840,
     capacity: 3200,
     floors: 76,
@@ -131,8 +131,42 @@ export const buildings: Building[] = [
     x: 35,
     y: 50,
     area: "Lower Parel",
-    activeIncidents: 1,
+    activeIncidents: 0,
     tagline: "Residential High-Rise",
+  },
+  {
+    id: "bse",
+    name: "Phiroze Jeejeebhoy Towers",
+    shortName: "BSE Tower",
+    type: "tower",
+    status: "normal",
+    occupancy: 3100,
+    capacity: 4000,
+    floors: 29,
+    lat: 18.9300,
+    lng: 72.8333,
+    x: 25,
+    y: 85,
+    area: "Dalal Street",
+    activeIncidents: 0,
+    tagline: "Bombay Stock Exchange",
+  },
+  {
+    id: "jio",
+    name: "Jio World Centre",
+    shortName: "Jio World",
+    type: "mall",
+    status: "normal",
+    occupancy: 15000,
+    capacity: 25000,
+    floors: 5,
+    lat: 19.0660,
+    lng: 72.8640,
+    x: 55,
+    y: 65,
+    area: "BKC",
+    activeIncidents: 0,
+    tagline: "Convention & Retail Hub",
   },
 ];
 
@@ -151,63 +185,12 @@ export interface Incident {
   responder: string;
   eta: string;
   description: string;
+  translatedText?: string;
+  detectedLanguage?: string;
 }
 
 export const incidentsByBuilding: Record<string, Incident[]> = {
-  csmia: [
-    {
-      id: "INC-2418",
-      type: "fire",
-      severity: "high",
-      location: "Duty Free Zone D · Pier C",
-      floor: 2,
-      status: "responding",
-      reportedAt: "2 min ago",
-      responder: "Fire Response Unit · Squad 7",
-      eta: "1 min",
-      description: "Smoke detected in retail concourse near Gate C14.",
-    },
-    {
-      id: "INC-2419",
-      type: "medical",
-      severity: "medium",
-      location: "Immigration Hall · Counter 22",
-      floor: 1,
-      status: "active",
-      reportedAt: "Just now",
-      responder: "Airport Medical Team Alpha",
-      eta: "3 min",
-      description: "Passenger reported chest pain. Conscious and breathing.",
-    },
-  ],
-  tajpalace: [
-    {
-      id: "INC-1187",
-      type: "security",
-      severity: "medium",
-      location: "Heritage Wing · Floor 4 Corridor",
-      floor: 4,
-      status: "responding",
-      reportedAt: "8 min ago",
-      responder: "Hotel Security · Team Bravo",
-      eta: "On site",
-      description: "Unattended baggage flagged near suite 412.",
-    },
-  ],
-  lodha: [
-    {
-      id: "INC-0892",
-      type: "structural",
-      severity: "low",
-      location: "Tower A · Floor 41 Mechanical",
-      floor: 41,
-      status: "contained",
-      reportedAt: "22 min ago",
-      responder: "Building Engineering",
-      eta: "Resolved 4 min",
-      description: "Minor water leak from HVAC. Drainage in progress.",
-    },
-  ],
+  // Empty state. Real incidents are now created dynamically and stored in IncidentContext (sessionStorage).
 };
 
 export interface Responder {
@@ -219,10 +202,10 @@ export interface Responder {
 }
 
 export const responders: Responder[] = [
-  { id: "r1", name: "Squad 7 · Fire", role: "Fire Response", status: "dispatched", distance: "120m" },
-  { id: "r2", name: "Medical Alpha", role: "Paramedic", status: "available", distance: "80m" },
-  { id: "r3", name: "Security Bravo", role: "Security", status: "on-scene", distance: "On site" },
-  { id: "r4", name: "Evac Coordinator", role: "Operations", status: "available", distance: "200m" },
+  { id: "r1", name: "Station 4 · Fire Rescue", role: "Fire Response", status: "available", distance: "Stationed" },
+  { id: "r2", name: "City Hospital Paramedics", role: "Paramedic", status: "available", distance: "Stationed" },
+  { id: "r3", name: "On-Site Security Team", role: "Security", status: "available", distance: "Stationed" },
+  { id: "r4", name: "Building Operations", role: "Operations", status: "available", distance: "Stationed" },
 ];
 
 export interface Message {
@@ -235,7 +218,5 @@ export interface Message {
 }
 
 export const initialMessages: Message[] = [
-  { id: "m1", from: "Command Center", role: "System", text: "All response teams synchronized. Standing by.", time: "09:42", kind: "system" },
-  { id: "m2", from: "Cmdr. R. Sharma", role: "Incident Commander", text: "Confirm visual on Zone D. Evacuation route Bravo open.", time: "09:43", kind: "info" },
-  { id: "m3", from: "Squad 7", role: "Fire Response", text: "Containment in progress. No injuries reported.", time: "09:44", kind: "alert" },
+  { id: "m1", from: "Command Center", role: "System", text: "All response teams synchronized. Standing by.", time: new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" }), kind: "system" },
 ];

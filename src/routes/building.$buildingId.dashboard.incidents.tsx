@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { AlertOctagon, Clock, Filter, Flame, Heart, ShieldAlert, Wrench } from "lucide-react";
-import { getBuilding, incidentsByBuilding, type Incident } from "@/data/buildings";
+import { AlertOctagon, CheckCircle2, Clock, Filter, Flame, Heart, ShieldAlert, Wrench } from "lucide-react";
+import { getBuilding, type Incident } from "@/data/buildings";
+import { useIncidentContext, useIncidents } from "@/contexts/IncidentContext";
 
 export const Route = createFileRoute("/building/$buildingId/dashboard/incidents")({
   component: IncidentsPage,
@@ -21,6 +22,10 @@ function IncidentsPage() {
   const [filter, setFilter] = useState<"all" | "active" | "resolved">("all");
   const [pulse, setPulse] = useState(0);
 
+  // Use live incidents from Context
+  const incidents = useIncidents(buildingId);
+  const { resolveIncident } = useIncidentContext();
+
   // Simulated real-time tick
   useEffect(() => {
     const i = setInterval(() => setPulse((p) => p + 1), 5000);
@@ -28,7 +33,6 @@ function IncidentsPage() {
   }, []);
 
   if (!building) return null;
-  const incidents = incidentsByBuilding[buildingId] ?? [];
 
   const filtered = incidents.filter((inc) => {
     if (filter === "all") return true;
@@ -68,7 +72,12 @@ function IncidentsPage() {
       ) : (
         <div className="grid gap-3">
           {filtered.map((inc, i) => (
-            <IncidentCard key={inc.id} inc={inc} delay={i * 60} />
+            <IncidentCard 
+              key={inc.id} 
+              inc={inc} 
+              delay={i * 60} 
+              onResolve={() => resolveIncident(buildingId, inc.id)}
+            />
           ))}
         </div>
       )}
@@ -76,10 +85,14 @@ function IncidentsPage() {
   );
 }
 
-function IncidentCard({ inc, delay }: { inc: Incident; delay: number }) {
+function IncidentCard({ inc, delay, onResolve }: { inc: Incident; delay: number; onResolve: () => void }) {
   const Icon = typeIcon[inc.type];
+  const isResolved = inc.status === "resolved" || inc.status === "contained";
+  
   const sev =
-    inc.severity === "critical" || inc.severity === "high"
+    isResolved 
+      ? { color: "text-success", bg: "bg-success/10", border: "border-success/40", dot: "bg-success" }
+      : inc.severity === "critical" || inc.severity === "high"
       ? { color: "text-destructive", bg: "bg-destructive/10", border: "border-destructive/40", dot: "bg-destructive shadow-[0_0_10px_var(--destructive)]" }
       : inc.severity === "medium"
       ? { color: "text-warning", bg: "bg-warning/10", border: "border-warning/40", dot: "bg-warning" }
@@ -111,13 +124,23 @@ function IncidentCard({ inc, delay }: { inc: Incident; delay: number }) {
             </p>
           </div>
         </div>
-        <div className="text-right">
+        <div className="flex flex-col items-end text-right">
           <p className="text-xs font-medium capitalize">{inc.status}</p>
           <p className="mt-1 inline-flex items-center gap-1 font-mono text-[10px] text-muted-foreground">
             <Clock className="h-3 w-3" /> {inc.reportedAt}
           </p>
           <p className="mt-2 text-xs">{inc.responder}</p>
           <p className="font-mono text-[10px] text-muted-foreground">ETA {inc.eta}</p>
+          
+          {!isResolved && (
+            <button 
+              onClick={onResolve}
+              className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-secondary px-3 py-1.5 text-xs font-medium transition-colors hover:bg-success/20 hover:text-success"
+            >
+              <CheckCircle2 className="h-3.5 w-3.5" />
+              Mark Resolved
+            </button>
+          )}
         </div>
       </div>
     </div>

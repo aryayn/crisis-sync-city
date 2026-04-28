@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Megaphone, Send, ShieldAlert, Stethoscope, Users } from "lucide-react";
 import { getBuilding, initialMessages, type Message } from "@/data/buildings";
+import { getBuildingEmail } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -30,7 +31,9 @@ function CommsPage() {
 
   if (!building) return null;
 
-  const send = (text: string, kind: Message["kind"] = "info", from = "Cmdr. R. Sharma") => {
+  const emailName = getBuildingEmail(buildingId || "").split("@")[0] || "User";
+
+  const send = (text: string, kind: Message["kind"] = "info", from = emailName) => {
     const t = text.trim();
     if (!t) return;
     setMessages((m) => [
@@ -38,7 +41,7 @@ function CommsPage() {
       {
         id: `m${Date.now()}`,
         from,
-        role: from === "Cmdr. R. Sharma" ? "Incident Commander" : "Broadcast",
+        role: from === emailName ? "Incident Commander" : "Broadcast",
         text: t,
         time: new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" }),
         kind,

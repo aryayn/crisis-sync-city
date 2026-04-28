@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Activity, AlertOctagon, ArrowUpRight, ChevronRight, DoorOpen, MessageSquare, Siren, Users } from "lucide-react";
-import { getBuilding, incidentsByBuilding, responders } from "@/data/buildings";
+import { getBuilding, responders } from "@/data/buildings";
 import { statusConfig } from "@/lib/building-meta";
+import { useIncidents } from "@/contexts/IncidentContext";
 
 export const Route = createFileRoute("/building/$buildingId/dashboard/")({
   component: OverviewPage,
@@ -10,9 +11,17 @@ export const Route = createFileRoute("/building/$buildingId/dashboard/")({
 function OverviewPage() {
   const { buildingId } = Route.useParams();
   const building = getBuilding(buildingId);
+  const incidents = useIncidents(buildingId);
+
   if (!building) return null;
-  const incidents = incidentsByBuilding[buildingId] ?? [];
-  const cfg = statusConfig[building.status];
+
+  // Calculate dynamic status based on live incidents
+  const activeIncidents = incidents.filter(i => i.status === "active" || i.status === "responding");
+  const isCritical = activeIncidents.some(i => i.severity === "critical" || i.severity === "high");
+  const isElevated = activeIncidents.some(i => i.severity === "medium");
+  const currentStatus = isCritical ? "critical" : isElevated ? "elevated" : "normal";
+  
+  const cfg = statusConfig[currentStatus];
   const occupancyPct = Math.round((building.occupancy / building.capacity) * 100);
 
   return (
@@ -27,18 +36,18 @@ function OverviewPage() {
       </div>
 
       {/* Status banner */}
-      {building.status !== "normal" && (
-        <div className={`relative overflow-hidden rounded-2xl border p-5 animate-fade-up ${building.status === "critical" ? "border-destructive/40 bg-destructive/5" : "border-warning/40 bg-warning/5"}`}>
-          <div className="absolute inset-y-0 left-0 w-1 bg-current opacity-80" style={{ color: building.status === "critical" ? "var(--destructive)" : "var(--warning)" }} />
+      {currentStatus !== "normal" && (
+        <div className={`relative overflow-hidden rounded-2xl border p-5 animate-fade-up ${currentStatus === "critical" ? "border-destructive/40 bg-destructive/5" : "border-warning/40 bg-warning/5"}`}>
+          <div className="absolute inset-y-0 left-0 w-1 bg-current opacity-80" style={{ color: currentStatus === "critical" ? "var(--destructive)" : "var(--warning)" }} />
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-start gap-3">
               <AlertOctagon className={`h-5 w-5 ${cfg.color}`} />
               <div>
                 <p className={`font-display text-base font-semibold ${cfg.color}`}>
-                  {building.status === "critical" ? "Critical incident in progress" : "Elevated alert level"}
+                  {currentStatus === "critical" ? "Critical incident in progress" : "Elevated alert level"}
                 </p>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  {incidents.length} incident{incidents.length !== 1 ? "s" : ""} requires coordination. All response teams synchronized.
+                  {activeIncidents.length} incident{activeIncidents.length !== 1 ? "s" : ""} requires coordination. All response teams synchronized.
                 </p>
               </div>
             </div>
@@ -57,7 +66,7 @@ function OverviewPage() {
       <div className="grid gap-3 md:grid-cols-4">
         <StatCard label="Status" value={cfg.label} accent={cfg.color} icon={Activity} />
         <StatCard label="Occupancy" value={`${occupancyPct}%`} sub={`${building.occupancy.toLocaleString()} / ${building.capacity.toLocaleString()}`} icon={Users} />
-        <StatCard label="Active incidents" value={incidents.length} icon={AlertOctagon} accent={incidents.length ? "text-warning" : "text-success"} />
+        <StatCard label="Active incidents" value={activeIncidents.length} icon={AlertOctagon} accent={activeIncidents.length ? "text-warning" : "text-success"} />
         <StatCard label="Responders ready" value={responders.filter(r => r.status === "available").length} icon={Siren} />
       </div>
 
@@ -100,10 +109,16 @@ function OverviewPage() {
             {incidents.length === 0 && (
               <p className="py-8 text-center text-sm text-muted-foreground">No active incidents. All systems nominal.</p>
             )}
-            {incidents.map((inc) => (
+            {incidents.slice(0, 5).map((inc) => (
               <div key={inc.id} className="flex items-start justify-between gap-3 py-3">
                 <div className="flex items-start gap-3">
-                  <span className={`mt-1 h-2 w-2 rounded-full ${inc.severity === "critical" || inc.severity === "high" ? "bg-destructive shadow-[0_0_8px_var(--destructive)]" : inc.severity === "medium" ? "bg-warning" : "bg-success"}`} />
+                  <span className={`mt-1 h-2 w-2 rounded-full ${
+                    inc.status === "resolved" || inc.status === "contained" 
+                      ? "bg-success"
+                      : inc.severity === "critical" || inc.severity === "high" 
+                        ? "bg-destructive shadow-[0_0_8px_var(--destructive)]" 
+                        : inc.severity === "medium" ? "bg-warning" : "bg-success"
+                  }`} />
                   <div>
                     <p className="text-sm font-medium capitalize">{inc.type} · <span className="font-mono text-xs text-muted-foreground">{inc.id}</span></p>
                     <p className="mt-0.5 text-xs text-muted-foreground">{inc.location}</p>
